@@ -35,7 +35,32 @@
         "prompts/v3/autopilot_addendum.md",
         "prompts/v3/intake_validation.md",
         "prompts/v3/master_system_prompt.md"
-      ]
+      ],
+      "checksums": {
+        "manifest.json": "6ee7dcd93d50e8c5ba87290e45e0fc54d0220a0aa48d2f411346e7443b172844",
+        "ui/index.html": "af7a77d468992138acc33f6fca8eb8668c9394b1a83418647e11ef6ccee494c8",
+        "ui/plugin.js": "c2c6c78c66b5166a098373a2623c6ba35fb6d1cef6f0d2511a1904d3ba223054",
+        "ui/styles.css": "5de7052e2ffd4bb7c065286ad9e47f24fe4917ef87b25b4bda45783acb011ee3",
+        "ui/autopilot.js": "a7b393fba6d836f2a247c52c3cf26f28c95b1b280f18d3afebacd774d67e7f5a",
+        "ui/autopilot-styles.css": "4a2c75d21d97ee2ff5509eec9b12147110ba19a837664c7d3730b10d72da71fb",
+        "ui/marked.min.js": "542fb24dddb9e5c3e1d960c6465a0150f5fb1061df6c6b760fd39d3e72a734da",
+        "prompts/v3/001_vision.md": "d7d833d005db761f744e2d8aa563c4b6cefd94c69e0b0b9194d08f24307b8aba",
+        "prompts/v3/002_feature_list.md": "68121d5778e1b05989363c4526906a6dd9ccb9d728f23bb17c95b05894037804",
+        "prompts/v3/003_user_journey.md": "46779f41f2564e5a98d0a3154da17af41446c6627b28b4c573b00f6b27e11da0",
+        "prompts/v3/004_technical_hurdles.md": "fd9ce6416c18742113fb88313d7d6ac232535afedc9a4e5160bfb5f83cf2baaa",
+        "prompts/v3/005_design_language.md": "9d5a900050dad283655fb44fa19e3542888157dafd6a4583056c9a2a284727d4",
+        "prompts/v3/006_tech_stack.md": "6b9e25f741fd54547e33cd303bfbb7649488a0264c3d8848b58bb62add0f5e7e",
+        "prompts/v3/007_data_flow.md": "d0e29411696ae8a32315912993d309dbe3a2990da97811e6441e36426e7997ae",
+        "prompts/v3/008_user_red_team.md": "cf1f2263941ac991d9f45893bcd029fdd03a472262b031840a23eadd01b6e001",
+        "prompts/v3/009_developer_red_team.md": "3f5dbc9fcc68ce6bfe6914e2dbdc3f4ca5d7bad421eecd59267f779a8efe5a55",
+        "prompts/v3/010_designer_red_team.md": "9da70b10c5d43a2fb316043093416a642ef485d17b3e144df62ddfefb84626ee",
+        "prompts/v3/011_manual_work.md": "dffde31a39c84db08753f82f041d55571378589d3cf214840d9d812ab01df86a",
+        "prompts/v3/012_final_improvement.md": "799805afe3a97791f5d04b15aecd79d58110a3c1b40aadb78dc954c71a1af676",
+        "prompts/v3/013_decomposer.md": "848d38f42388036d26c6d7717bdc99d98ceeab7f1f41b6a7865301a0f3c26c22",
+        "prompts/v3/autopilot_addendum.md": "91fe141e26e5cc1b1fcd88d9a49e95688e8d34defd820a9707636b722c4455c3",
+        "prompts/v3/intake_validation.md": "24ff39ecdab6c83c5552387200318c160d8dd912938c8b153c2f8894df9fbadb",
+        "prompts/v3/master_system_prompt.md": "e7d338c92c2b3a4b6d61f00d6c483201120fd6d70d48d90166e92ecc6721846a"
+      }
     },
     {
       "id": "repoguard",
@@ -52,7 +77,13 @@
         "ui/index.html",
         "ui/plugin.js",
         "ui/styles.css"
-      ]
+      ],
+      "checksums": {
+        "manifest.json": "1672a13d6094886dba8b449ea3e0be26539ff2bf97c47e4501514d0ab03e3f58",
+        "ui/index.html": "c22f4301cc4e1755e8c1f626620a9ecdb72ce3d6373cde3f330c2096772c0ff8",
+        "ui/plugin.js": "0ee67d945ea55a5951f69135a862f5d9d64fbc7e1493d296fa9e3907d3d0585f",
+        "ui/styles.css": "fda8a41ed75d9c60fb131a11305a246dfa4bce877bf1d6cdee8769cba61b31ba"
+      }
     }
   ]
 }
