@@ -1,0 +1,88 @@
+{
+  "plugin": {
+    "id": "prdstack",
+    "name": "PRD Stack",
+    "version": "1.0.0",
+    "author": "JLS Trading Co",
+    "description": "AI-guided PRD creation through structured interview steps",
+    "icon": "file-text",
+    "category": "planning",
+    "license": {
+      "type": "free"
+    },
+    "minAppVersion": "0.1.28"
+  },
+  "settings": [
+    {
+      "key": "promptVersion",
+      "label": "Prompt Flow Version",
+      "description": "Which prompt flow to use for new PRDs",
+      "type": "select",
+      "options": [{ "value": "v3", "label": "V3 — Modern 13-Step (Recommended)" }],
+      "default": "v3"
+    },
+    {
+      "key": "includeRedTeam",
+      "label": "Include Red Team Reviews",
+      "description": "Run adversarial review steps (User, Developer, Designer)",
+      "type": "toggle",
+      "default": true
+    }
+  ],
+  "storage": {
+    "collections": {
+      "prds": {
+        "columns": {
+          "title": "text",
+          "status": "text",
+          "progress": "integer",
+          "flow_version": "text",
+          "current_step": "integer",
+          "project_context": "json",
+          "export_folder": "text"
+        },
+        "indexes": ["status", "flow_version"]
+      },
+      "steps": {
+        "columns": {
+          "prd_id": "text",
+          "order": "integer",
+          "title": "text",
+          "phase": "text",
+          "is_completed": "integer",
+          "generated_content": "text",
+          "selection_state": "json",
+          "context_summary": "text"
+        },
+        "indexes": ["prd_id"]
+      },
+      "messages": {
+        "columns": {
+          "step_id": "text",
+          "prd_id": "text",
+          "role": "text",
+          "content": "text"
+        },
+        "indexes": ["step_id", "prd_id"]
+      },
+      "prd_files": {
+        "columns": {
+          "prd_id": "text",
+          "file_name": "text",
+          "display_name": "text",
+          "content": "text",
+          "order": "integer"
+        },
+        "indexes": ["prd_id"]
+      }
+    }
+  },
+  "migrations": [],
+  "ui": {
+    "entryPoint": "ui/index.html",
+    "sidebar": {
+      "title": "PRD Stack",
+      "icon": "file-text"
+    }
+  }
+}

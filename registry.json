@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "plugins": [
+    {
+      "id": "prdstack",
+      "name": "PRD Stack",
+      "version": "1.0.0",
+      "author": "JLS Trading Co",
+      "description": "AI-guided PRD creation through structured interview steps",
+      "icon": "file-text",
+      "category": "planning",
+      "license": "free",
+      "minAppVersion": "0.1.28",
+      "files": [
+        "manifest.json",
+        "ui/index.html",
+        "ui/plugin.js",
+        "ui/styles.css",
+        "ui/autopilot.js",
+        "ui/autopilot-styles.css",
+        "ui/marked.min.js",
+        "prompts/v3/001_vision.md",
+        "prompts/v3/002_feature_list.md",
+        "prompts/v3/003_user_journey.md",
+        "prompts/v3/004_technical_hurdles.md",
+        "prompts/v3/005_design_language.md",
+        "prompts/v3/006_tech_stack.md",
+        "prompts/v3/007_data_flow.md",
+        "prompts/v3/008_user_red_team.md",
+        "prompts/v3/009_developer_red_team.md",
+        "prompts/v3/010_designer_red_team.md",
+        "prompts/v3/011_manual_work.md",
+        "prompts/v3/012_final_improvement.md",
+        "prompts/v3/013_decomposer.md",
+        "prompts/v3/autopilot_addendum.md",
+        "prompts/v3/intake_validation.md",
+        "prompts/v3/master_system_prompt.md"
+      ]
+    },
+    {
+      "id": "repoguard",
+      "name": "RepoGuard",
+      "version": "1.0.0",
+      "author": "JLS Trading Co",
+      "description": "Repo health scoring, security scanning, and runtime monitoring",
+      "icon": "shield-check",
+      "category": "development",
+      "license": "free",
+      "minAppVersion": "0.1.28",
+      "files": [
+        "manifest.json",
+        "ui/index.html",
+        "ui/plugin.js",
+        "ui/styles.css"
+      ]
+    }
+  ]
+}

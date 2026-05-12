@@ -1,0 +1,120 @@
+{
+  "plugin": {
+    "id": "repoguard",
+    "name": "RepoGuard",
+    "version": "1.0.0",
+    "author": "JLS Trading Co",
+    "description": "Repo health scoring, security scanning, and runtime monitoring",
+    "icon": "shield-check",
+    "category": "development",
+    "license": { "type": "free" },
+    "minAppVersion": "0.1.28"
+  },
+  "settings": [
+    {
+      "key": "scanCooldownMinutes",
+      "label": "Scan Cooldown (minutes)",
+      "description": "Minimum minutes between re-scans of the same repo",
+      "type": "number",
+      "default": 15,
+      "min": 1,
+      "max": 1440
+    },
+    {
+      "key": "sentryRefreshHours",
+      "label": "Sentry Refresh Interval (hours)",
+      "description": "How often to refresh Sentry data",
+      "type": "number",
+      "default": 24,
+      "min": 1,
+      "max": 168
+    },
+    {
+      "key": "sentryAuthToken",
+      "label": "Sentry Auth Token",
+      "description": "Your Sentry auth token (project:read + event:read scopes). Encrypted at rest.",
+      "type": "password",
+      "default": ""
+    },
+    {
+      "key": "sentryOrgSlug",
+      "label": "Sentry Organization Slug",
+      "description": "The org slug from your Sentry URL (e.g. sentry.io/organizations/YOUR-ORG/)",
+      "type": "text",
+      "default": ""
+    }
+  ],
+  "storage": {
+    "collections": {
+      "scans": {
+        "columns": {
+          "project_id": "text",
+          "repo_url": "text",
+          "scan_type": "text",
+          "status": "text",
+          "score": "integer",
+          "grade": "text",
+          "findings_count": "integer",
+          "total_token_cost": "integer",
+          "error_message": "text",
+          "completed_at": "text"
+        },
+        "indexes": ["project_id", "status"]
+      },
+      "category_scores": {
+        "columns": {
+          "scan_id": "text",
+          "category": "text",
+          "score": "integer",
+          "summary": "text",
+          "skipped": "integer",
+          "token_cost": "integer"
+        },
+        "indexes": ["scan_id"]
+      },
+      "findings": {
+        "columns": {
+          "scan_id": "text",
+          "category": "text",
+          "severity": "text",
+          "remediation_priority": "text",
+          "title": "text",
+          "description": "text",
+          "file_path": "text",
+          "line_start": "integer",
+          "line_end": "integer",
+          "codebase_context": "text",
+          "fix_suggestion": "text",
+          "fix_snippet": "text",
+          "reference_url": "text",
+          "status": "text"
+        },
+        "indexes": ["scan_id", "category", "severity"]
+      },
+      "scan_schedules": {
+        "columns": {
+          "project_id": "text",
+          "schedule": "text",
+          "time": "text",
+          "day": "text"
+        },
+        "indexes": ["project_id"]
+      },
+      "sentry_links": {
+        "columns": {
+          "project_id": "text",
+          "sentry_project_slug": "text"
+        },
+        "indexes": ["project_id"]
+      }
+    }
+  },
+  "migrations": [],
+  "ui": {
+    "entryPoint": "ui/index.html",
+    "sidebar": {
+      "title": "RepoGuard",
+      "icon": "shield-check"
+    }
+  }
+}

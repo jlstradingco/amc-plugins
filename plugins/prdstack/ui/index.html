@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PRD Stack</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="autopilot-styles.css" />
+  <script src="marked.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <!-- ── Dashboard View ────────────────────────────── -->
+    <div id="dashboard-view">
+      <div class="dashboard-header">
+        <div class="dashboard-title">
+          <div class="icon">P</div>
+          <span>PRD Stack</span>
+        </div>
+        <div class="dashboard-header-actions">
+          <button id="autopilot-btn" class="btn btn-secondary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            Launch Autopilot
+          </button>
+          <button id="new-prd-btn" class="btn btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            New PRD
+          </button>
+        </div>
+      </div>
+      <div id="prd-list"></div>
+      <div id="empty-state" class="empty-state hidden">
+        <div class="empty-icon">&#128221;</div>
+        <h3>No PRDs yet</h3>
+        <p>Create your first Product Requirements Document. The AI will guide you through 13 structured steps to build a comprehensive PRD.</p>
+        <button class="btn btn-primary" onclick="document.getElementById('new-prd-btn').click()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Create your first PRD
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Builder View ──────────────────────────────── -->
+    <div id="builder-view" class="hidden">
+      <div class="builder-layout">
+        <div class="step-sidebar">
+          <div class="step-sidebar-header">
+            <div class="prd-title" id="prd-title">Untitled PRD</div>
+            <div class="progress-info" id="progress-info">Step 1 of 13 - 0% complete</div>
+            <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width: 0%"></div></div>
+          </div>
+          <div class="step-list" id="step-sidebar"></div>
+          <div class="step-sidebar-footer">
+            <button id="back-btn" class="btn btn-ghost btn-sm" style="width:100%">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+              </svg>
+              All PRDs
+            </button>
+          </div>
+        </div>
+        <div class="conversation-area">
+          <div class="conversation-header">
+            <h2 id="step-title">Product Vision</h2>
+            <span class="step-badge" id="step-badge">Step 1 of 13</span>
+          </div>
+          <div id="messages"></div>
+          <div class="input-area">
+            <div class="input-row">
+              <textarea id="user-input" placeholder="Type your response..." rows="1"></textarea>
+              <button id="send-btn" class="send-btn" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                </svg>
+              </button>
+            </div>
+            <div class="input-hint">
+              <span>Press Enter to send, Shift+Enter for new line</span>
+              <span id="round-counter"></span>
+            </div>
+          </div>
+          <div class="step-actions hidden" id="step-actions">
+            <span class="round-info" id="round-info"></span>
+            <button id="complete-step-btn" class="btn btn-success btn-sm">Complete Step</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Viewer View (completed PRD) ────────────────── -->
+    <div id="viewer-view" class="hidden">
+      <div class="viewer-layout">
+        <div class="viewer-sidebar">
+          <div style="margin-bottom: 16px;">
+            <div class="prd-title" id="viewer-title">PRD Title</div>
+            <div style="font-size: 12px; color: var(--surface-500); margin-top: 4px;">Completed PRD</div>
+          </div>
+          <ul class="viewer-section-nav" id="viewer-nav"></ul>
+          <div class="viewer-sidebar-actions">
+            <button id="viewer-build-btn" class="btn btn-primary btn-sm" style="width:100%">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+              Build This Now
+            </button>
+            <button id="viewer-export-btn" class="btn btn-secondary btn-sm" style="width:100%">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Export PRD Files
+            </button>
+            <button id="viewer-back-btn" class="btn btn-ghost btn-sm" style="width:100%">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+              </svg>
+              All PRDs
+            </button>
+          </div>
+        </div>
+        <div class="viewer-content" id="viewer-content"></div>
+      </div>
+    </div>
+
+    <!-- Intake View (Autopilot entry) -->
+    <div id="intake-view" class="hidden">
+      <div class="intake-layout">
+        <div class="intake-header">
+          <button class="btn btn-ghost btn-sm intake-back-btn" id="intake-back-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+            </svg>
+            Back
+          </button>
+          <div class="intake-title">Autopilot</div>
+          <div class="intake-subtitle">Describe your idea and let AI build the entire PRD</div>
+        </div>
+        <div class="intake-body">
+          <div class="intake-prompt">Describe what you want to build</div>
+          <div class="intake-hints">
+            <span class="intake-hint-chip">Elevator pitch</span>
+            <span class="intake-hint-chip">Target audience</span>
+            <span class="intake-hint-chip">Platform (web, mobile, desktop)</span>
+            <span class="intake-hint-chip">Tech stack preferences</span>
+          </div>
+          <textarea id="intake-textarea" class="intake-textarea" placeholder="I want to build an app that..." rows="6"></textarea>
+          <div id="intake-followup" class="intake-followup hidden">
+            <div class="intake-followup-question" id="intake-followup-question"></div>
+            <textarea id="intake-followup-input" class="intake-textarea" placeholder="Your answer..." rows="3"></textarea>
+          </div>
+          <div class="intake-project-name hidden" id="intake-project-name-section">
+            <label class="intake-label">Project folder name</label>
+            <input type="text" id="intake-project-name" class="intake-name-input" placeholder="e.g. MyAppName" />
+            <label class="intake-label" style="margin-top: 12px;">Project location</label>
+            <div class="intake-folder-row">
+              <input type="text" id="intake-folder-path" class="intake-name-input" placeholder="Select a folder..." readonly />
+              <button id="intake-browse-btn" class="btn btn-ghost btn-sm">Browse...</button>
+            </div>
+            <div class="intake-folder-hint" id="intake-folder-hint"></div>
+          </div>
+          <div class="intake-actions">
+            <button id="intake-submit-btn" class="btn btn-primary" disabled>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+              Analyze Idea
+            </button>
+            <button id="intake-launch-btn" class="btn btn-primary hidden">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2"/>
+              </svg>
+              Launch Autopilot
+            </button>
+          </div>
+          <div id="intake-status" class="intake-status hidden"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Autopilot View (live run) -->
+    <div id="autopilot-view" class="hidden">
+      <div class="autopilot-layout">
+        <div class="autopilot-status-strip" id="autopilot-status-strip">
+          <div class="autopilot-status-left">
+            <span class="autopilot-step-name" id="ap-step-name">Starting...</span>
+            <span class="autopilot-round" id="ap-round">Round 0/0</span>
+          </div>
+          <div class="autopilot-status-right">
+            <span class="autopilot-elapsed" id="ap-elapsed">0:00</span>
+            <button class="btn btn-secondary btn-sm" id="ap-pause-btn">Pause</button>
+            <button class="btn btn-ghost btn-sm" id="ap-abort-btn">Abort</button>
+          </div>
+        </div>
+        <div class="autopilot-body">
+          <div class="autopilot-step-rail" id="autopilot-step-rail"></div>
+          <div class="autopilot-decision-feed" id="autopilot-decision-feed">
+            <div class="decision-feed-empty">Waiting for first question...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Completion View (autopilot finished) -->
+    <div id="completion-view" class="hidden">
+      <div class="completion-layout">
+        <div class="completion-hero" id="completion-hero">
+          <div class="completion-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <h2 id="completion-project-name">Project Name</h2>
+          <p class="completion-summary" id="completion-summary">One-line description</p>
+          <p class="completion-time" id="completion-time">Completed in 0:00</p>
+        </div>
+        <div class="completion-body">
+          <div class="completion-section">
+            <h3>Decision Timeline</h3>
+            <div id="completion-timeline" class="completion-timeline"></div>
+          </div>
+          <div class="completion-section">
+            <h3>Files Created</h3>
+            <div id="completion-files" class="completion-files"></div>
+          </div>
+        </div>
+        <div class="completion-actions">
+          <button id="completion-build-btn" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            Start Building
+          </button>
+          <button id="completion-done-btn" class="btn btn-secondary">Back to Dashboard</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="plugin.js"></script>
+  <script src="autopilot.js"></script>
+</body>
+</html>
