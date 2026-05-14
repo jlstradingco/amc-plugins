@@ -1,0 +1,134 @@
+{
+  "plugin": {
+    "id": "nightytidy",
+    "name": "NightyTidy",
+    "version": "1.0.0",
+    "author": "JLS Trading Co",
+    "description": "Automated overnight codebase improvements — run 33 AI-driven refactoring steps while you sleep, review results in the morning.",
+    "icon": "moon-star",
+    "category": "development",
+    "license": { "type": "free" },
+    "minAppVersion": "0.1.40"
+  },
+  "settings": [
+    {
+      "key": "defaultTimeout",
+      "label": "Step Timeout (minutes)",
+      "description": "Maximum time per step before timeout",
+      "type": "number",
+      "default": 45,
+      "min": 5,
+      "max": 120
+    },
+    {
+      "key": "maxRetries",
+      "label": "Max Retries Per Step",
+      "description": "Number of retry attempts for failed steps",
+      "type": "number",
+      "default": 3,
+      "min": 1,
+      "max": 5
+    },
+    {
+      "key": "autoMerge",
+      "label": "Auto-Merge on Success",
+      "description": "Automatically merge the NightyTidy branch when all steps pass",
+      "type": "toggle",
+      "default": false
+    },
+    {
+      "key": "generateReport",
+      "label": "Generate Report",
+      "description": "Write NIGHTYTIDY-REPORT.md to the project repo after each run",
+      "type": "toggle",
+      "default": true
+    },
+    {
+      "key": "fastCompletionThreshold",
+      "label": "Fast Completion Threshold (minutes)",
+      "description": "Retry steps that finish suspiciously fast (likely incomplete)",
+      "type": "number",
+      "default": 2,
+      "min": 1,
+      "max": 10
+    }
+  ],
+  "storage": {
+    "collections": {
+      "runs": {
+        "columns": {
+          "project_id": "text",
+          "status": "text",
+          "started_at": "text",
+          "finished_at": "text",
+          "total_cost": "real",
+          "files_changed": "integer",
+          "steps_passed": "integer",
+          "steps_failed": "integer",
+          "steps_total": "integer",
+          "original_branch": "text",
+          "git_branch": "text",
+          "git_tag": "text",
+          "report_path": "text",
+          "recipe_run_id": "text"
+        },
+        "indexes": ["project_id", "status"]
+      },
+      "run_steps": {
+        "columns": {
+          "run_id": "text",
+          "step_id": "text",
+          "step_name": "text",
+          "status": "text",
+          "duration": "integer",
+          "cost": "real",
+          "attempts": "integer",
+          "files_changed": "integer",
+          "summary": "text",
+          "output": "text",
+          "error": "text"
+        },
+        "indexes": ["run_id", "step_id"]
+      },
+      "steps": {
+        "columns": {
+          "step_id": "text",
+          "name": "text",
+          "category": "text",
+          "prompt": "text",
+          "is_builtin": "integer",
+          "display_order": "integer",
+          "enabled": "integer"
+        },
+        "indexes": ["step_id", "category"]
+      },
+      "step_presets": {
+        "columns": {
+          "name": "text",
+          "project_id": "text",
+          "step_ids": "json"
+        },
+        "indexes": ["project_id"]
+      },
+      "schedules": {
+        "columns": {
+          "project_id": "text",
+          "cron_job_id": "text",
+          "days": "json",
+          "time": "text",
+          "step_preset_id": "text",
+          "enabled": "integer"
+        },
+        "indexes": ["project_id"]
+      }
+    }
+  },
+  "migrations": [],
+  "ui": {
+    "entryPoint": "ui/index.html",
+    "sidebar": {
+      "title": "NightyTidy",
+      "icon": "moon-star"
+    }
+  }
+}
