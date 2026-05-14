@@ -84,6 +84,29 @@
         "ui/plugin.js": "454092d967b0dd95b97ad2406f8257e380e09cbc8c155d772b47986114cbb461",
         "ui/styles.css": "f006133d73e032c1a9f845702523ae39477645e486a18739d7a03ddd3e1e6499"
       }
+    },
+    {
+      "id": "nightytidy",
+      "name": "NightyTidy",
+      "version": "1.0.0",
+      "author": "JLS Trading Co",
+      "description": "Automated overnight codebase improvements — run 33 AI-driven refactoring steps while you sleep, review results in the morning.",
+      "icon": "moon-star",
+      "category": "development",
+      "license": "free",
+      "minAppVersion": "0.1.40",
+      "files": [
+        "manifest.json",
+        "ui/index.html",
+        "ui/plugin.js",
+        "ui/styles.css"
+      ],
+      "checksums": {
+        "manifest.json": "40f0c32420a675968809bd672fd7c91dd55bb594822ea3a3de1f538a95cf9fd5",
+        "ui/index.html": "09059be23a9934dae807a8a53f47eb2d9616800549c5bcf06a77b5c34ecab4fc",
+        "ui/plugin.js": "8bea65c6c624b78e734d48a8bd2db4ef4bf08d4c6d539182795ab1924675dcc6",
+        "ui/styles.css": "9912468e2f2e6b27391a418d7a6e9106b6e2d8cadf4cc26cd5d63cd61713f76c"
+      }
     }
   ]
 }
