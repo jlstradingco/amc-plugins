@@ -1,24 +1,615 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline';"
-    />
-    <title>NightyTidy</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div id="app">
-      <nav id="tab-bar"></nav>
-      <div id="view-dashboard" class="view active"></div>
-      <div id="view-step-selection" class="view"></div>
-      <div id="view-live-run" class="view"></div>
-      <div id="view-results" class="view"></div>
-      <div id="view-settings" class="view"></div>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline';" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<title>NightyTidy</title>
+<style>
+:root {
+  --bg: #0f1117;
+  --bg-card: #1a1d27;
+  --bg-elevated: #222633;
+  --bg-hover: #2a2e3d;
+  --bg-modal: rgba(0,0,0,0.7);
+  --text: #e2e8f0;
+  --text-dim: #94a3b8;
+  --text-muted: #64748b;
+  --border: #2d3348;
+  --accent: rgb(var(--accent-rgb, 99, 102, 241));
+  --green: #22c55e;
+  --green-bg: rgba(34,197,94,0.12);
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --radius: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; overflow-x: hidden; }
+button { font-family: inherit; cursor: pointer; }
+input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+
+/* ---- Header ---- */
+.header { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--bg-card); }
+.header h1 { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.header-actions { display: flex; gap: 8px; }
+
+/* ---- Tab bar ---- */
+.tabs { display: flex; gap: 2px; padding: 8px 24px 0; background: var(--bg-card); border-bottom: 1px solid var(--border); }
+.tab { padding: 8px 16px; font-size: 13px; font-weight: 500; color: var(--text-dim); background: none; border: none; border-bottom: 2px solid transparent; transition: all 0.15s; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ---- Page content ---- */
+.page { display: none; padding: 24px; }
+.page.active { display: block; }
+
+/* ---- Project grid ---- */
+.project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+.project-card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 20px; display: flex; flex-direction: column; gap: 12px; transition: border-color 0.15s;
+}
+.project-card:hover { border-color: var(--text-muted); }
+.project-card-header { display: flex; align-items: center; gap: 10px; }
+.project-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.project-name { font-size: 15px; font-weight: 600; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.project-path { font-size: 12px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.project-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 8px; }
+.project-stats { display: flex; gap: 16px; font-size: 12px; color: var(--text-dim); }
+.btn-run {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--green); color: #fff; border: none; border-radius: 8px;
+  padding: 8px 18px; font-size: 13px; font-weight: 600; transition: opacity 0.15s;
+}
+.btn-run:hover { opacity: 0.9; }
+.btn-run svg { width: 14px; height: 14px; }
+
+/* ---- Modal ---- */
+.modal-backdrop { position: fixed; inset: 0; background: var(--bg-modal); z-index: 100; display: none; align-items: center; justify-content: center; }
+.modal-backdrop.open { display: flex; }
+.modal {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+  width: 640px; max-width: 92vw; max-height: 85vh; display: flex; flex-direction: column;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.4);
+}
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px 16px; border-bottom: 1px solid var(--border);
+}
+.modal-header h2 { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.modal-close { background: none; border: none; color: var(--text-muted); font-size: 20px; padding: 4px 8px; border-radius: 6px; }
+.modal-close:hover { background: var(--bg-hover); color: var(--text); }
+
+.modal-toolbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 24px; background: var(--bg-elevated); border-bottom: 1px solid var(--border);
+}
+.modal-toolbar .count { font-size: 14px; font-weight: 600; }
+.modal-toolbar .count span { color: var(--green); }
+.toolbar-btns { display: flex; gap: 6px; }
+.btn-sm {
+  padding: 4px 14px; font-size: 12px; font-weight: 500; border-radius: 6px;
+  border: 1px solid var(--border); background: transparent; color: var(--text-dim); transition: all 0.15s;
+}
+.btn-sm:hover { background: var(--bg-hover); color: var(--text); }
+
+.modal-body { flex: 1; overflow-y: auto; padding: 16px 24px; }
+
+/* ---- Category groups ---- */
+.cat-group { margin-bottom: 8px; }
+.cat-header {
+  display: flex; align-items: center; gap: 8px; padding: 10px 12px;
+  background: var(--bg-elevated); border-radius: 8px; cursor: pointer;
+  font-size: 13px; font-weight: 600; user-select: none; transition: background 0.1s;
+}
+.cat-header:hover { background: var(--bg-hover); }
+.cat-chevron { font-size: 10px; color: var(--text-muted); transition: transform 0.15s; display: inline-block; }
+.cat-chevron.open { transform: rotate(90deg); }
+.cat-color { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.cat-count { margin-left: auto; font-size: 11px; font-weight: 400; color: var(--text-muted); }
+.cat-steps { display: none; padding: 4px 0 4px 12px; }
+.cat-steps.open { display: block; }
+.step-row { display: flex; align-items: center; gap: 10px; padding: 7px 12px; border-radius: 6px; }
+.step-row:hover { background: var(--bg-elevated); }
+.step-label { font-size: 13px; flex: 1; }
+
+/* ---- Modal footer ---- */
+.modal-footer {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 16px 24px; border-top: 1px solid var(--border);
+}
+.timeout-group { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-dim); }
+.timeout-group input {
+  width: 60px; padding: 4px 8px; font-size: 13px;
+  background: var(--bg-elevated); color: var(--text); border: 1px solid var(--border);
+  border-radius: 6px; text-align: center;
+}
+.btn-start {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--green); color: #fff; border: none; border-radius: 8px;
+  padding: 10px 24px; font-size: 14px; font-weight: 600; transition: opacity 0.15s;
+}
+.btn-start:hover { opacity: 0.9; }
+.btn-start:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ---- Live run ---- */
+.progress-bar { width: 100%; height: 6px; background: var(--bg-elevated); border-radius: 3px; overflow: hidden; margin: 12px 0; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.3s; }
+.run-step { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; border-left: 3px solid var(--border); margin-bottom: 4px; }
+.run-step.pass { border-left-color: var(--green); }
+.run-step.fail { border-left-color: var(--red); }
+.run-step.active { border-left-color: var(--accent); background: var(--bg-elevated); }
+.spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---- History ---- */
+.history-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.history-row { display: flex; align-items: center; gap: 16px; padding: 12px 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; }
+.history-row:hover { background: var(--bg-elevated); }
+.history-row:last-child { border-bottom: none; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+.badge-pass { background: rgba(34,197,94,0.12); color: var(--green); }
+.badge-fail { background: rgba(239,68,68,0.12); color: var(--red); }
+.badge-warn { background: rgba(245,158,11,0.12); color: var(--amber); }
+
+/* ---- Empty state ---- */
+.empty { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+.empty h3 { font-size: 18px; color: var(--text-dim); margin-bottom: 8px; }
+
+/* ---- Utility ---- */
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> NightyTidy</h1>
+  <div class="header-actions">
+    <button class="btn-sm" onclick="refreshAll()" title="Refresh">Refresh</button>
+  </div>
+</div>
+<div class="tabs" id="tab-bar"></div>
+<div id="page-projects" class="page active"></div>
+<div id="page-live" class="page"></div>
+<div id="page-history" class="page"></div>
+
+<!-- Run Modal -->
+<div class="modal-backdrop" id="run-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-title">Run Audits</h2>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
     </div>
-    <script src="plugin.js"></script>
-  </body>
+    <div class="modal-toolbar">
+      <div class="count"><span id="sel-count">33</span> / <span id="sel-total">33</span> selected</div>
+      <div class="toolbar-btns">
+        <button class="btn-sm" onclick="selectAll()">All</button>
+        <button class="btn-sm" onclick="selectNone()">None</button>
+      </div>
+    </div>
+    <div class="modal-body" id="modal-steps"></div>
+    <div class="modal-footer">
+      <div class="timeout-group">
+        <label>Timeout:</label>
+        <input type="number" id="timeout-input" value="45" min="5" max="120" />
+        <span>min / step</span>
+      </div>
+      <button class="btn-start" id="btn-start" onclick="startRun()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+        <span id="start-label">Start Run (33)</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const amc = window.AgentMC
+
+let projects = []
+let steps = []
+let selectedStepIds = new Set()
+let modalProjectId = null
+let activeRun = null
+let activeRunSteps = []
+let currentTab = 'projects'
+let pollTimer = null
+
+const CATEGORY_COLORS = {
+  documentation: '#3b82f6', testing: '#22c55e', security: '#ef4444',
+  performance: '#f59e0b', architecture: '#8b5cf6', ux: '#ec4899',
+  infrastructure: '#06b6d4', product: '#f97316', api: '#6366f1',
+  dependencies: '#14b8a6', 'code quality': '#a855f7', runtime: '#f43f5e',
+  bugs: '#dc2626', frontend: '#ec4899', operations: '#0ea5e9', strategy: '#eab308'
+}
+
+function renderTabs() {
+  const tabs = [
+    { id: 'projects', label: 'Projects' },
+    { id: 'live', label: 'Live Run' },
+    { id: 'history', label: 'History' }
+  ]
+  document.getElementById('tab-bar').innerHTML = tabs
+    .map(t => '<button class="tab ' + (t.id === currentTab ? 'active' : '') + '" onclick="switchTab(\'' + t.id + '\')">' + t.label + '</button>')
+    .join('')
+}
+
+function switchTab(id) {
+  currentTab = id
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active') })
+  document.getElementById('page-' + id).classList.add('active')
+  renderTabs()
+  if (id === 'projects') renderProjects()
+  else if (id === 'live') renderLive()
+  else if (id === 'history') renderHistory()
+}
+
+function esc(s) {
+  if (!s) return ''
+  var d = document.createElement('div')
+  d.textContent = s
+  return d.innerHTML
+}
+
+async function loadProjects() {
+  try {
+    var all = await amc.project.listAll()
+    projects = all.filter(function(p) { return !p.folderPath.startsWith('__') })
+  } catch (e) { projects = [] }
+}
+
+function renderProjects() {
+  var el = document.getElementById('page-projects')
+  if (projects.length === 0) {
+    el.innerHTML = '<div class="empty"><h3>No projects</h3><p>Add a project in AMC to get started.</p></div>'
+    return
+  }
+  el.innerHTML = '<div class="project-grid">' + projects.map(function(p) {
+    var color = p.color || '#6366f1'
+    return '<div class="project-card">' +
+      '<div class="project-card-header">' +
+        '<div class="project-dot" style="background:' + esc(color) + '"></div>' +
+        '<div class="project-name">' + esc(p.name) + '</div>' +
+      '</div>' +
+      '<div class="project-path">' + esc(p.folderPath) + '</div>' +
+      '<div class="project-card-footer">' +
+        '<div class="project-stats"></div>' +
+        '<button class="btn-run" onclick="openRunModal(\'' + esc(p.id) + '\')">' +
+          '<svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><polygon points="5,3 19,12 5,21"/></svg>' +
+          ' Run Audits' +
+        '</button>' +
+      '</div>' +
+    '</div>'
+  }).join('') + '</div>'
+}
+
+async function loadSteps() {
+  try { steps = await amc.nightytidy.getStepLibrary() } catch (e) { steps = [] }
+}
+
+function getEnabledSteps() { return steps.filter(function(s) { return s.enabled }) }
+
+function groupByCategory(list) {
+  var groups = {}
+  for (var i = 0; i < list.length; i++) {
+    var cat = list[i].category || 'other'
+    if (!groups[cat]) groups[cat] = []
+    groups[cat].push(list[i])
+  }
+  return groups
+}
+
+function openRunModal(projectId) {
+  modalProjectId = projectId
+  var enabled = getEnabledSteps()
+  selectedStepIds = new Set(enabled.map(function(s) { return s.id }))
+  renderModalSteps()
+  updateSelectionCount()
+  var proj = projects.find(function(p) { return p.id === projectId })
+  document.getElementById('modal-title').textContent = proj ? 'Run Audits \u2014 ' + proj.name : 'Run Audits'
+  document.getElementById('run-modal').classList.add('open')
+}
+
+function closeModal() {
+  document.getElementById('run-modal').classList.remove('open')
+  modalProjectId = null
+}
+
+function renderModalSteps() {
+  var enabled = getEnabledSteps()
+  var groups = groupByCategory(enabled)
+  var container = document.getElementById('modal-steps')
+  var html = ''
+
+  Object.keys(groups).forEach(function(cat) {
+    var catSteps = groups[cat]
+    var color = CATEGORY_COLORS[cat] || '#64748b'
+    var label = cat.charAt(0).toUpperCase() + cat.slice(1)
+    var checkedCount = catSteps.filter(function(s) { return selectedStepIds.has(s.id) }).length
+    var allChecked = checkedCount === catSteps.length
+
+    html += '<div class="cat-group">' +
+      '<div class="cat-header" onclick="toggleCat(\'' + cat + '\')">' +
+        '<span class="cat-chevron" id="chev-' + cat + '">&#9654;</span>' +
+        '<input type="checkbox" ' + (allChecked ? 'checked' : '') + ' onclick="event.stopPropagation(); toggleCatAll(\'' + cat + '\', this.checked)">' +
+        '<span class="cat-color" style="background:' + color + '"></span>' +
+        '<span>' + esc(label) + '</span>' +
+        '<span class="cat-count">' + checkedCount + '/' + catSteps.length + '</span>' +
+      '</div>' +
+      '<div class="cat-steps" id="cat-' + cat + '">'
+
+    catSteps.forEach(function(s) {
+      html += '<div class="step-row">' +
+        '<input type="checkbox" ' + (selectedStepIds.has(s.id) ? 'checked' : '') + ' onchange="toggleStep(\'' + s.id + '\')">' +
+        '<div class="step-label">' + esc(s.name) + '</div>' +
+      '</div>'
+    })
+
+    html += '</div></div>'
+  })
+
+  container.innerHTML = html
+}
+
+function toggleCat(cat) {
+  var el = document.getElementById('cat-' + cat)
+  var ch = document.getElementById('chev-' + cat)
+  if (el) el.classList.toggle('open')
+  if (ch) ch.classList.toggle('open')
+}
+
+function toggleCatAll(cat, checked) {
+  steps.filter(function(s) { return s.category === cat && s.enabled }).forEach(function(s) {
+    if (checked) selectedStepIds.add(s.id)
+    else selectedStepIds.delete(s.id)
+  })
+  renderModalSteps()
+  updateSelectionCount()
+}
+
+function toggleStep(id) {
+  if (selectedStepIds.has(id)) selectedStepIds.delete(id)
+  else selectedStepIds.add(id)
+  renderModalSteps()
+  updateSelectionCount()
+}
+
+function selectAll() {
+  getEnabledSteps().forEach(function(s) { selectedStepIds.add(s.id) })
+  renderModalSteps()
+  updateSelectionCount()
+}
+
+function selectNone() {
+  selectedStepIds.clear()
+  renderModalSteps()
+  updateSelectionCount()
+}
+
+function updateSelectionCount() {
+  var total = getEnabledSteps().length
+  var count = selectedStepIds.size
+  document.getElementById('sel-count').textContent = count
+  document.getElementById('sel-total').textContent = total
+  document.getElementById('start-label').textContent = 'Start Run (' + count + ')'
+  document.getElementById('btn-start').disabled = count === 0
+}
+
+async function startRun() {
+  if (selectedStepIds.size === 0 || !modalProjectId) return
+  var timeout = parseInt(document.getElementById('timeout-input').value || '45', 10)
+  try {
+    var result = await amc.nightytidy.startRun({
+      projectId: modalProjectId,
+      stepRowIds: Array.from(selectedStepIds),
+      timeout: timeout
+    })
+    activeRun = { id: result.runId, status: 'running', started_at: new Date().toISOString() }
+    activeRunSteps = []
+    amc.toast.show({ type: 'success', message: 'NightyTidy run started!' })
+    closeModal()
+    switchTab('live')
+    startPolling()
+  } catch (e) {
+    amc.toast.show({ type: 'error', message: 'Failed: ' + (e.message || e) })
+  }
+}
+
+function startPolling() {
+  if (pollTimer) clearInterval(pollTimer)
+  pollLive()
+  pollTimer = setInterval(pollLive, 3000)
+}
+
+async function pollLive() {
+  if (!activeRun) return
+  try {
+    var data = await amc.nightytidy.getRunStatus(activeRun.id)
+    if (!data) return
+    activeRun = data.run
+    activeRunSteps = data.steps || []
+    renderLive()
+    if (['completed', 'failed', 'partial', 'cancelled'].indexOf(data.run.status) >= 0) {
+      if (pollTimer) { clearInterval(pollTimer); pollTimer = null }
+    }
+  } catch (e) { /* ignore */ }
+}
+
+function renderLive() {
+  var el = document.getElementById('page-live')
+  if (!activeRun) {
+    el.innerHTML = '<div class="empty"><h3>No active run</h3><p>Start a run from the Projects tab.</p></div>'
+    return
+  }
+  var run = activeRun
+  var runSteps = activeRunSteps
+  var isRunning = run.status === 'running'
+  var done = runSteps.filter(function(s) { return ['completed','failed','skipped'].indexOf(s.status) >= 0 })
+  var pct = runSteps.length > 0 ? Math.round((done.length / runSteps.length) * 100) : 0
+  var current = runSteps.find(function(s) { return s.status === 'running' })
+  var elapsed = Math.round((Date.now() - new Date(run.started_at).getTime()) / 1000)
+  var mins = Math.floor(elapsed / 60)
+
+  var html = '<div class="card">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+      '<h3 style="font-size:16px">' + (isRunning ? 'Run in Progress' : 'Run ' + esc(run.status)) + '</h3>' +
+      (isRunning ? '<button class="btn-sm" style="color:var(--red);border-color:var(--red)" onclick="cancelRun()">Cancel</button>' : '') +
+    '</div>' +
+    '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
+    '<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted)">' +
+      '<span>' + done.length + ' / ' + runSteps.length + ' steps</span>' +
+      '<span>' + mins + 'm elapsed</span>' +
+      '<span>$' + (run.total_cost || 0).toFixed(4) + '</span>' +
+    '</div></div>'
+
+  if (current) {
+    html += '<div class="card" style="border-left:3px solid var(--accent);display:flex;align-items:center;gap:10px">' +
+      '<span class="spinner"></span><strong>' + esc(current.step_name) + '</strong></div>'
+  }
+
+  html += '<div style="margin-top:12px">'
+  runSteps.forEach(function(s) {
+    var cls = s.status === 'completed' ? 'pass' : s.status === 'failed' ? 'fail' : s.status === 'running' ? 'active' : ''
+    var icon = s.status === 'completed' ? '\u2713' : s.status === 'failed' ? '\u2717' : s.status === 'running' ? '<span class="spinner" style="width:12px;height:12px"></span>' : '\u25CB'
+    var clr = s.status === 'completed' ? 'var(--green)' : s.status === 'failed' ? 'var(--red)' : s.status === 'running' ? 'var(--accent)' : 'var(--text-muted)'
+    html += '<div class="run-step ' + cls + '">' +
+      '<span style="color:' + clr + ';min-width:18px;text-align:center">' + icon + '</span>' +
+      '<span style="flex:1">' + esc(s.step_name) + '</span>' +
+      (s.duration ? '<span style="font-size:12px;color:var(--text-muted)">' + Math.floor(s.duration/60) + 'm</span>' : '') +
+      (s.cost ? '<span style="font-size:12px;color:var(--text-muted)">$' + s.cost.toFixed(4) + '</span>' : '') +
+    '</div>'
+  })
+  html += '</div>'
+  el.innerHTML = html
+}
+
+async function cancelRun() {
+  if (!activeRun || !confirm('Cancel this run?')) return
+  try {
+    await amc.nightytidy.cancelRun(activeRun.id)
+    amc.toast.show({ type: 'info', message: 'Run cancelled' })
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null }
+    await pollLive()
+  } catch (e) { amc.toast.show({ type: 'error', message: e.message }) }
+}
+
+async function renderHistory() {
+  var el = document.getElementById('page-history')
+  if (projects.length === 0) {
+    el.innerHTML = '<div class="empty"><h3>No projects</h3></div>'
+    return
+  }
+  var allHistory = []
+  for (var i = 0; i < projects.length; i++) {
+    try {
+      var runs = await amc.nightytidy.getRunHistory(projects[i].id)
+      for (var j = 0; j < runs.length; j++) {
+        allHistory.push(Object.assign({}, runs[j], { projectName: projects[i].name, projectColor: projects[i].color || '#6366f1' }))
+      }
+    } catch (e) { /* skip */ }
+  }
+  allHistory.sort(function(a, b) { return new Date(b.started_at) - new Date(a.started_at) })
+
+  if (allHistory.length === 0) {
+    el.innerHTML = '<div class="empty"><h3>No runs yet</h3><p>Start an audit from the Projects tab.</p></div>'
+    return
+  }
+
+  var html = '<div class="history-card">'
+  allHistory.forEach(function(r) {
+    var badge = r.status === 'completed' ? 'badge-pass' : r.status === 'failed' ? 'badge-fail' : 'badge-warn'
+    var label = r.status === 'completed' ? 'PASSED' : (r.status || '').toUpperCase()
+    var d = new Date(r.started_at)
+    html += '<div class="history-row" onclick="viewRunDetail(\'' + r.id + '\')">' +
+      '<div class="project-dot" style="background:' + esc(r.projectColor) + '"></div>' +
+      '<div style="flex:1">' +
+        '<div style="font-weight:600;font-size:13px">' + esc(r.projectName) + '</div>' +
+        '<div style="font-size:11px;color:var(--text-muted)">' + d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) + '</div>' +
+      '</div>' +
+      '<span class="badge ' + badge + '">' + label + '</span>' +
+      '<span style="font-size:12px;color:var(--text-dim)">' + r.steps_passed + '/' + r.steps_total + '</span>' +
+      '<span style="font-size:12px;color:var(--text-muted)">$' + (r.total_cost||0).toFixed(2) + '</span>' +
+    '</div>'
+  })
+  html += '</div>'
+  el.innerHTML = html
+}
+
+async function viewRunDetail(runId) {
+  try {
+    var data = await amc.nightytidy.getRunStatus(runId)
+    if (!data) return
+    activeRun = data.run
+    activeRunSteps = data.steps || []
+    switchTab('live')
+  } catch (e) { amc.toast.show({ type: 'error', message: e.message }) }
+}
+
+async function refreshAll() {
+  await Promise.all([loadProjects(), loadSteps()])
+  if (currentTab === 'projects') renderProjects()
+  else if (currentTab === 'history') renderHistory()
+}
+
+async function init() {
+  try {
+    var theme = await amc.theme.get()
+    if (theme && theme.mode === 'light') applyLightTheme()
+    amc.theme.onChange(function(t) {
+      if (t.mode === 'light') applyLightTheme()
+      else applyDarkTheme()
+    })
+  } catch (e) { /* ignore */ }
+
+  renderTabs()
+  await Promise.all([loadProjects(), loadSteps()])
+  renderProjects()
+
+  for (var i = 0; i < projects.length; i++) {
+    try {
+      var runs = await amc.nightytidy.getRunHistory(projects[i].id)
+      var active = runs.find(function(r) { return r.status === 'running' })
+      if (active) {
+        activeRun = active
+        switchTab('live')
+        startPolling()
+        return
+      }
+    } catch (e) { /* skip */ }
+  }
+}
+
+function applyLightTheme() {
+  var s = document.documentElement.style
+  s.setProperty('--bg', '#ffffff')
+  s.setProperty('--bg-card', '#ffffff')
+  s.setProperty('--bg-elevated', '#f8fafc')
+  s.setProperty('--bg-hover', '#f1f5f9')
+  s.setProperty('--text', '#1e293b')
+  s.setProperty('--text-dim', '#475569')
+  s.setProperty('--text-muted', '#94a3b8')
+  s.setProperty('--border', '#e2e8f0')
+}
+
+function applyDarkTheme() {
+  var s = document.documentElement.style
+  s.setProperty('--bg', '#0f1117')
+  s.setProperty('--bg-card', '#1a1d27')
+  s.setProperty('--bg-elevated', '#222633')
+  s.setProperty('--bg-hover', '#2a2e3d')
+  s.setProperty('--text', '#e2e8f0')
+  s.setProperty('--text-dim', '#94a3b8')
+  s.setProperty('--text-muted', '#64748b')
+  s.setProperty('--border', '#2d3348')
+}
+
+document.getElementById('run-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal()
+})
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal()
+})
+
+init().catch(function(e) { console.error('[NightyTidy] init failed:', e) })
+</script>
+</body>
 </html>
