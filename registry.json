@@ -104,8 +104,8 @@
       "checksums": {
         "manifest.json": "40f0c32420a675968809bd672fd7c91dd55bb594822ea3a3de1f538a95cf9fd5",
         "ui/index.html": "09059be23a9934dae807a8a53f47eb2d9616800549c5bcf06a77b5c34ecab4fc",
-        "ui/plugin.js": "8bea65c6c624b78e734d48a8bd2db4ef4bf08d4c6d539182795ab1924675dcc6",
-        "ui/styles.css": "9912468e2f2e6b27391a418d7a6e9106b6e2d8cadf4cc26cd5d63cd61713f76c"
+        "ui/plugin.js": "524dce0de379900967285197c21a5608b7e3e3308c0a66d89143d814f8bbf5df",
+        "ui/styles.css": "52915fce0995e9cd696118bd554da24a2a8ba651de62cb8817f7dd9d4c1443a8"
       }
     }
   ]
